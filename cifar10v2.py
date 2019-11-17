@@ -60,11 +60,13 @@ def get_dataloaders(batch_size, path):
     """
     train_dataset = datasets.CIFAR10(path, train=True, download=True,
         transform=transforms.Compose([
-            transforms.ToTensor()
+            transforms.ToTensor(),
+            transforms.Normalize([0.491, 0.482, 0.447], [0.202, 0.199, 0.201])
         ]))
     test_dataset = datasets.CIFAR10(path, train=False, download=True,
         transform=transforms.Compose([
-            transforms.ToTensor()
+            transforms.ToTensor(),
+            transforms.Normalize([0.491, 0.482, 0.447], [0.202, 0.199, 0.201])
         ]))
 
     train_loader = torch.utils.data.DataLoader(
