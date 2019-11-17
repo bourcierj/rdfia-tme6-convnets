@@ -23,27 +23,26 @@ if device.type == 'cuda':
 
 class ConvNet(nn.Module):
     """
-    Contains the structure of a convolutional neural network (LeNet5)
+    CNN architecture close to AlexNet from Krizhevsky et al (2012).
     """
     def __init__(self):
         super(ConvNet, self).__init__()
-        # First define convolution and pooling layers as groups of layers in
-        # `self.features`
+
         self.features = nn.Sequential(
-            nn.Conv2d(1, 6, (5, 5), stride=1, padding=2),
-            nn.Tanh(),
+            nn.Conv2d(3, 32, (5, 5), stride=1, padding=2),
+            nn.ReLU(),
             nn.MaxPool2d((2, 2), stride=2, padding=0),
-            nn.Conv2d(6, 16, (5, 5), stride=1, padding=0),
-            nn.Tanh(),
+            nn.Conv2d(32, 64, (5, 5), stride=1, padding=2),
+            nn.ReLU(),
+            nn.MaxPool2d((2, 2), stride=2, padding=0),
+            nn.Conv2d(64, 64, (5, 5), stride=1, padding=2),
+            nn.ReLU(),
             nn.MaxPool2d((2, 2), stride=2, padding=0),
         )
-        # Define fully-connected layers as a group of layers in `self.classifier`
         self.classifier = nn.Sequential(
-            nn.Linear(400, 120),
-            nn.Tanh(),
-            nn.Linear(120, 84),
-            nn.Tanh(),
-            nn.Linear(84, 10)
+            nn.Linear(1024, 1000),
+            nn.ReLU(),
+            nn.Linear(1000, 10),
         )
 
     def forward(self, input):
@@ -59,21 +58,23 @@ def get_dataloaders(batch_size, path):
     This function loads the MNIST dataset and add transformations on every image
     (listed in `transform=...`)
     """
-    train_dataset = datasets.MNIST(path, train=True, download=True,
+    train_dataset = datasets.CIFAR10(path, train=True, download=True,
         transform=transforms.Compose([
             transforms.ToTensor()
         ]))
-    test_dataset = datasets.MNIST(path, train=False, download=True,
+    test_dataset = datasets.CIFAR10(path, train=False, download=True,
         transform=transforms.Compose([
             transforms.ToTensor()
         ]))
 
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True,
-        pin_memory=(device.type == 'cuda'), num_workers=4)
+        pin_memory=(device.type == 'cuda'),
+        num_workers=torch.multiprocessing.cpu_count())
     test_loader = torch.utils.data.DataLoader(
         test_dataset, batch_size=batch_size, shuffle=False,
-        pin_memory=(device.type == 'cuda'), num_workers=4)
+        pin_memory=(device.type == 'cuda'),
+        num_workers=torch.multiprocessing.cpu_count())
 
     return train_loader, test_loader
 
@@ -184,7 +185,6 @@ def main(params):
     plot.savefig(savefig_path/'Acc_loss.svg')
     loss_plot.savefig(savefig_path/'Train_loss.svg')
 
-
 if __name__ == '__main__':
 
     # Command-line parameters
@@ -197,7 +197,7 @@ if __name__ == '__main__':
                         help='mini-batch size (default: 128)')
     parser.add_argument('--lr', default=0.1, type=float, metavar='LR',
                         help='learning rate')
-    parser.add_argument('--savefig-path', default='./mnist_expes', type=str, metavar='DIR',
+    parser.add_argument('--savefig-path', default='./cifar10_expes', type=str, metavar='DIR',
                         help='where to save figures')
     args = parser.parse_args()
 
