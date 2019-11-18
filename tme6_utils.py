@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 plt.ion()
 import numpy as np
+import seaborn as sns
+sns.set()
 
 def accuracy(output, target, topk=(1,)):
     """Computes the precision@k for the specified values of k"""

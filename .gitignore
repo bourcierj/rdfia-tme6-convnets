@@ -8,6 +8,7 @@
 /RDFIA-TME-67.md
 /mnist_expes/
 /cifar10_expes/
+/CIFAR10_expes/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

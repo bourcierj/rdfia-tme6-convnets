@@ -14,7 +14,7 @@ import torch.utils.data
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 
-from tme6 import *
+from tme6_utils import *
 
 PRINT_INTERVAL = 50
 
