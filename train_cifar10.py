@@ -219,8 +219,8 @@ def train(model, criterion, optimizer, train_loader, val_loader, epochs, lr_sche
         if lr_sched:
             lr_sched.step()
 
-    plot.savefig(savefig_dir/'Acc_loss.svg')
-    loss_plot.savefig(savefig_dir/'Train_loss.svg')
+    plot.savefig(savefig_dir/'Accuracy-loss.svg')
+    loss_plot.savefig(savefig_dir/'Train-batch-loss.svg')
     # get max accuracy obtained
     max_epoch, max_acc = max(enumerate(plot.acc_test), key=lambda x: x[1])
     max_epoch += 1
@@ -245,8 +245,9 @@ def main(args):
     else:
         lr_sched = None
     # Get all data
-    train_loader, test_loader = get_dataloaders(args.batch_size, args.data_path,
-                                                args.data_augment, args.normalize)
+    train_loader, test_loader = \
+        get_dataloaders(args.batch_size, args.data_path, args.data_augment,
+                        args.normalize)
 
     ignore_keys = {'data_path', 'no_tensorboard'}
     # get hyperparameters with values in a dict
@@ -266,18 +267,17 @@ def main(args):
         grid = torchvision.utils.make_grid(input)
         writer.add_image('Train-input-images', grid, 0)
 
-    max_epoch, max_acc = train(model, criterion, optimizer, train_loader, test_loader, args.epochs, lr_sched,
-                               savefig_dir, writer)
-    print(f"End. Max Acc {max_acc:5.2f} %\t"
-          f"Max Epoch {max_epoch}"
+    max_epoch, max_acc = train(model, criterion, optimizer, train_loader, test_loader,
+                               args.epochs, lr_sched, savefig_dir, writer)
+    print(f"End. Max Acc: {max_acc:5.2f} %\t"
+          f"Max Epoch: {max_epoch}"
           )
-    # add hyperparameters
+    # log accuracy for hyperparameters
     writer.add_hparams(hparams, {'accuracy': max_acc})
 
 if __name__ == '__main__':
 
     # Command-line parameters
-    # base parameters
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-path', default='./data', type=str,
                         help='path to dataset (default: ./data')
@@ -304,7 +304,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch-norm', action='store_true',
                         help='if specified, use batch normalization after conv layers of the CNN')
     args = parser.parse_args()
-
+    torch.manual_seed(42)  # random seed for reproducibility
     main(args)
 
     print('Done.')
