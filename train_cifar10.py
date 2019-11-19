@@ -11,6 +11,7 @@ import torch.backends.cudnn as cudnn
 import torch.optim
 import torch.optim.lr_scheduler
 import torch.utils.data
+import torchvision
 import torchvision.transforms as transforms
 import torchvision.datasets as datasets
 from torch.utils.tensorboard import SummaryWriter
@@ -141,7 +142,7 @@ def train(model, criterion, optimizer, train_loader, val_loader, epochs, lr_sche
         else:
             torch_cm = contextlib.nullcontext()
             model.train()
-            ROLE = 'Eval'
+            ROLE = 'Train'
         nonlocal ite
         # iterate on dataset batches
         tic = time.time()
@@ -167,10 +168,10 @@ def train(model, criterion, optimizer, train_loader, val_loader, epochs, lr_sche
                 avg_top1_acc.update(prec1.item())
                 avg_top5_acc.update(prec5.item())
                 avg_batch_time.update(batch_time)
-                if writer:
-                    writer.add_scalar('Train_batch_loss', avg_loss.val, ite)
                 if optimizer:
                     loss_plot.update(avg_loss.val)
+                    if writer:
+                        writer.add_scalar('Loss/Train-batch-loss', avg_loss.val, ite)
                 # log infos
                 if idx % PRINT_INTERVAL == 0:
                     print('[{0:s} Batch {1:03d}/{2:03d}]\t'
@@ -185,9 +186,9 @@ def train(model, criterion, optimizer, train_loader, val_loader, epochs, lr_sche
                     if optimizer:
                         loss_plot.plot()
         if writer:
-            writer.add_scalar(f'{ROLE}_epoch_loss', avg_loss.avg, i_epoch)
-            writer.add_scalar(f'{ROLE}_epoch_acc', avg_top1_acc.avg, i_epoch)
-            writer.add_scalar(f'{ROLE}_epoch_top5_acc', avg_top5_acc.avg, i_epoch)
+            writer.add_scalar(f'Loss/{ROLE}-epoch-loss', avg_loss.avg, i_epoch)
+            writer.add_scalar(f'Accuracy/{ROLE}-epoch-acc', avg_top1_acc.avg, i_epoch)
+            writer.add_scalar(f'Accuracy/{ROLE}-epoch-top5-acc', avg_top5_acc.avg, i_epoch)
 
         # Log infos on epoch
         print('\n===============> Total time {batch_time:d}s\t'
@@ -260,6 +261,10 @@ def main(args):
         writer = None
     else:
         writer = SummaryWriter(comment='__CIFAR10__'+expe_name, flush_secs=10)
+        # log a batch of input images
+        input, target = next(iter(train_loader))
+        grid = torchvision.utils.make_grid(input)
+        writer.add_image('Train-input-images', grid, 0)
 
     max_epoch, max_acc = train(model, criterion, optimizer, train_loader, test_loader, args.epochs, lr_sched,
                                savefig_dir, writer)
