@@ -58,7 +58,6 @@ class TrainLossPlot(object):
         plt.ylabel("Loss")
         plt.show()
         plt.draw_all()
-        plt.pause(1e-3)
 
     def savefig(self, filename):
         plt.figure(self.fig.number)
@@ -70,7 +69,6 @@ class TrainLossPlot(object):
         plt.savefig(filename)
         plt.show()
         plt.draw_all()
-        plt.pause(1e-3)
 
 
 class AccLossPlot(object):
@@ -86,6 +84,8 @@ class AccLossPlot(object):
         self.loss_test.append(loss_test)
         self.acc_train.append(acc_train)
         self.acc_test.append(acc_test)
+
+    def plot(self):
         plt.figure(self.fig.number)
         plt.clf()
         plt.subplot(1,2,1)
@@ -104,7 +104,6 @@ class AccLossPlot(object):
         plt.legend()
         plt.show()
         plt.draw_all()
-        plt.pause(1e-3)
 
     def savefig(self, filename):
         plt.figure(self.fig.number)
@@ -126,4 +125,3 @@ class AccLossPlot(object):
         plt.savefig(filename)
         plt.show()
         plt.draw_all()
-        plt.pause(1e-3)
