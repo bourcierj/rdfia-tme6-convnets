@@ -236,9 +236,8 @@ def main(args):
     model = ConvNet(args.dropout_p, args.batch_norm).to(device)
     criterion = nn.CrossEntropyLoss().to(device)
 
-    # use SGD with Netsterov's momentum of 0.9
-    if args.nesterov_momentum:
-        optim_kwargs = dict(momentum=0.9, nesterov=True)
+    if args.momentum:  # use SGD with a momentum of 0.9
+        optim_kwargs = dict(momentum=0.9)
     else:
         optim_kwargs = dict()
     optimizer = torch.optim.SGD(model.parameters(), args.lr, **optim_kwargs)
@@ -284,29 +283,29 @@ if __name__ == '__main__':
     # Command-line parameters
     parser = argparse.ArgumentParser()
     parser.add_argument('--data-path', default='./data', type=str,
-                        help='path to dataset (default: ./data')
+                        help="path to dataset (default: ./data")
     parser.add_argument('--no-tensorboard', action='store_true',
-                        help='if specified, do not log metrics to tensorboard')
+                        help="if specified, do not log metrics to tensorboard")
 
     parser.add_argument('--epochs', default=30, type=int,
-                        help='number of total epochs to run (default: 30)')
+                        help="number of total epochs to run (default: 30)")
     parser.add_argument('--batch-size', default=128, type=int,
-                        help='mini-batch size (default: 128)')
+                        help="mini-batch size (default: 128)")
     parser.add_argument('--lr', default=0.1, type=float,
-                        help='learning rate (default: 0.1)')
+                        help="learning rate (default: 0.1)")
     # optional improvements
     parser.add_argument('--normalize', action='store_true',
-                        help='if specified, normalize data')
+                        help="if specified, normalize data")
     parser.add_argument('--data-augment', action='store_true',
-                        help='if specified, do some data augmentation')
-    parser.add_argument('--nesterov-momentum', action='store_true',
-                        help="if specified, use SGD with Nesterov's momentum")
+                        help="if specified, do some data augmentation")
+    parser.add_argument('--momentum', action='store_true',
+                        help="if specified, use SGD with a momentum of 0.9")
     parser.add_argument('--exponential-lr-sched', action='store_true',
-                        help='if specified, use an exponential LR scheduler')
+                        help="if specified, use an exponential LR scheduler")
     parser.add_argument('--dropout_p', default=0., type=float,
-                        help='proba of dropout between layers fc4 and fc5 of the CNN (default: 0. - no dropout)')
+                        help="proba of dropout between layers fc4 and fc5 of the CNN (default: 0. - no dropout)")
     parser.add_argument('--batch-norm', action='store_true',
-                        help='if specified, use batch normalization after conv layers of the CNN')
+                        help="if specified, use batch normalization after conv layers of the CNN")
     args = parser.parse_args()
     torch.manual_seed(42)  # random seed for reproducibility
     main(args)
