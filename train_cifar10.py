@@ -302,7 +302,7 @@ if __name__ == '__main__':
                         help="if specified, use SGD with a momentum of 0.9")
     parser.add_argument('--exponential-lr-sched', action='store_true',
                         help="if specified, use an exponential LR scheduler")
-    parser.add_argument('--dropout_p', default=0., type=float,
+    parser.add_argument('--dropout-p', default=0., type=float,
                         help="proba of dropout between layers fc4 and fc5 of the CNN (default: 0. - no dropout)")
     parser.add_argument('--batch-norm', action='store_true',
                         help="if specified, use batch normalization after conv layers of the CNN")

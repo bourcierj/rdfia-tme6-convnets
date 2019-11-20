@@ -1,6 +1,7 @@
 python>=3.7.0
 pytorch
 torchvision
+tensorboard
 matplotlib
 seaborn
 numpy
