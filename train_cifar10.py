@@ -48,13 +48,15 @@ class ConvNet(nn.Module):
             layers = [l for l in layers if not isinstance(l, nn.BatchNorm2d)]
 
         self.features = nn.Sequential(*layers)
-
-        self.classifier = nn.Sequential(
+        layers = [
             nn.Linear(1024, 1000),
             nn.ReLU(),
             nn.Dropout(dropout_p),
             nn.Linear(1000, 10),
-        )
+        ]
+        if dropout_p == 0.:  # remove dropout
+            layers = [l for l in layers if not isinstance(l, nn.Dropout)]
+        self.classifier = nn.Sequential(*layers)
 
     def forward(self, input):
         bsize = input.size(0)
@@ -88,7 +90,7 @@ def get_dataloaders(batch_size, path, data_augment=False, normalize=False):
 
     train_dataset = datasets.CIFAR10(path, train=True, download=True,
         transform=transforms.Compose(train_tfms))
-    test_dataset = datasets.CIFAR10(path, train=True, download=True,
+    test_dataset = datasets.CIFAR10(path, train=False, download=True,
         transform=transforms.Compose(test_tfms))
 
     # train_dataset = datasets.CIFAR10(path, train=True, download=True,
@@ -183,8 +185,8 @@ def train(model, criterion, optimizer, train_loader, val_loader, epochs, lr_sche
                                   batch_time=avg_batch_time, loss=avg_loss,
                                   top1=avg_top1_acc, top5=avg_top5_acc)
                           )
-                    if optimizer:
-                        loss_plot.plot()
+                    # if optimizer:
+                    #     loss_plot.plot()
         if writer:
             writer.add_scalar(f'Loss/{ROLE}-epoch-loss', avg_loss.avg, i_epoch)
             writer.add_scalar(f'Accuracy/{ROLE}-epoch-acc', avg_top1_acc.avg, i_epoch)
@@ -215,6 +217,7 @@ def train(model, criterion, optimizer, train_loader, val_loader, epochs, lr_sche
         top1_acc_test, top5_acc_test, loss_test = epoch(val_loader, model, criterion)
         # plot
         plot.update(loss.avg, loss_test.avg, top1_acc.avg, top1_acc_test.avg)
+        # plot.plot()
         # modify learning rate
         if lr_sched:
             lr_sched.step()
@@ -273,7 +276,8 @@ def main(args):
           f"Max Epoch: {max_epoch}"
           )
     # log accuracy for hyperparameters
-    writer.add_hparams(hparams, {'accuracy': max_acc})
+    if writer:
+        writer.add_hparams(hparams, {'accuracy': max_acc})
 
 if __name__ == '__main__':
 
